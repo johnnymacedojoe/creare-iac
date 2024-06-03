@@ -1,0 +1,31 @@
+version: '3.7'
+services:
+  inbound-agent:
+    build:
+      dockerfile: Dockerfile
+      context: ./image_agent
+    #image: jenkins/inbound-agent
+    init: true
+    privileged: true
+    container_name: jenkins-agent
+    hostname: jenkins-agent
+    working_dir: /var/jenkins
+    user: root
+    volumes:
+      - /docker-containers/jenkins/data/agent:/var/jenkins
+      - /docker-containers/jenkins/data/instantclient:/instantclient
+      - /docker-containers/jenkins/conf/scripts:/scripts
+      - /docker-containers:/containers
+      - /docker-repo:/repo
+      - /docker-uploads:/uploads
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /stage:/stage
+      - /u01:/u01
+    environment:
+      - JENKINS_URL=http://10.4.1.2:40155
+      - JENKINS_TUNNEL=10.4.1.2:30103
+      - JENKINS_SECRET={{jenkins_secret}}
+      - JENKINS_AGENT_NAME={{jenkins_agent_name}}
+      #- JENKINS_WEB_SOCKET=true
+      - DIND=true
+      - TINI_SUBREAPER=true

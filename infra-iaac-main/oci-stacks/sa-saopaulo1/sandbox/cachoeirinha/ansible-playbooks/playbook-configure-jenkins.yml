@@ -1,0 +1,30 @@
+---
+- become: yes
+  become_method: sudo
+  hosts: cachoeirinha
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Ensure directory exists
+      file:
+        path: "/docker-containers/jenkins"
+        state: directory
+
+    - name: Create a symbolic link
+      file:
+        src: "/docker-repo/jenkins"
+        dest: "/docker-containers/jenkins/conf"
+        state: link
+
+    - name: Deploy the template file
+      template:
+        src: "template-jenkins.j2"
+        dest: "/docker-containers/jenkins/conf/{{jenkins_file_name}}.yml"
+
+    - name: Append to .env file
+      lineinfile:
+        path: "/docker-containers/.env"
+        line: "Jenkins Agent:docker-containers:jenkins:jenkins:{{jenkins_file_name}}"
+        create: yes
